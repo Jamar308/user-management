@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
@@ -12,9 +13,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="user-management.user-management.main" target="17" />
-      <module name="user-management.user-management.main~1" target="17" />
       <module name="user-management.user-management.test" target="17" />
-      <module name="user-management.user-management.test~1" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

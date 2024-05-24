@@ -1,5 +1,6 @@
 package com.example.usermanagement.repositories;
 
+import com.example.usermanagement.dto.PrivilegeRequest;
 import com.example.usermanagement.model.Privilege;
 import org.springframework.data.jpa.repository.JpaRepository;
 
