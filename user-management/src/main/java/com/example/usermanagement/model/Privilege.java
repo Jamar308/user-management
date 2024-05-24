@@ -22,26 +22,26 @@ public class Privilege {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long privilegeId;
 
-    private String name;
+    private String privilegeName;
     private String code;
-    private String description;
+    private String privilegeDescription;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    @JsonBackReference // Use this to break the bidirectional relationship for JSON serialization
-    private Role role;
-
-    @ManyToMany(mappedBy = "privileges", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Role> roles = new HashSet<>();
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "role_id")
+//    @JsonBackReference // Use this to break the bidirectional relationship for JSON serialization
+//    private Role role;
+//
+//    @ManyToMany(mappedBy = "privileges", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private Set<Role> roles = new HashSet<>();
 
 
 
     public Privilege(PrivilegeRequest privilegeRequest) {
-        this.name = privilegeRequest.getName();
+        this.privilegeName = privilegeRequest.getPrivilegeName();
         this.code = privilegeRequest.getCode();
-        this.description = privilegeRequest.getDescription();
+        this.privilegeDescription = privilegeRequest.getPrivilegeDescription();
         this.createdDate = privilegeRequest.getCreatedDate();
         this.updatedDate = LocalDateTime.now();
     }

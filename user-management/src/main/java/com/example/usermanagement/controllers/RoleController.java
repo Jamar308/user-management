@@ -1,7 +1,14 @@
 package com.example.usermanagement.controllers;
 
+import com.example.usermanagement.dto.ErrorResponseDto;
 import com.example.usermanagement.dto.RoleRequest;
+import com.example.usermanagement.service.RoleResponse;
 import com.example.usermanagement.service.RoleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,12 +18,34 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/roles")
+@CrossOrigin("*")
 public class RoleController {
 
         @Autowired
         private RoleService roleService;
 
+
+    @Operation(
+            summary = "Create Role REST API",
+            description = "REST API to create new Role"
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "201",
+                    description = "HTTP Status CREATED"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+
     @PostMapping
+    @Valid
     public ResponseEntity<RoleRequest> createRole(@RequestBody RoleRequest roleRequest) {
         RoleRequest createdRoleRequest = roleService.createRoleWithPrivileges(roleRequest);
         return ResponseEntity.ok(createdRoleRequest);
@@ -36,10 +65,10 @@ public class RoleController {
         return ResponseEntity.ok(roles);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RoleRequest> updateRole(@PathVariable Long id, @RequestBody RoleRequest roleDetails) {
-        RoleRequest updatedRoleRequest = roleService.updateRole(id, roleDetails);
-        return ResponseEntity.ok(updatedRoleRequest);
+    @PutMapping("/updateRole")
+    public com.example.usermanagement.util.ResponseEntity<RoleResponse> updateRole(@RequestBody RoleRequest roleRequest, String success) {
+        return   roleService.updateRole(roleRequest, success);
+
     }
 
     @DeleteMapping("/{id}")

@@ -14,7 +14,7 @@ spring:
     accountService:
       baseUrl: http://localhost:8187
   datasource:
-    url: jdbc:mariadb://localhost/admin_db
+    url: jdbc:mariadb://localhost/Login_db
     username: root
     password:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -37,3 +37,8 @@ spring:
       origin: http://localhost:4200/
 
 
+#logging:
+#  level:
+#    root: INFO
+#    com.example.usermanagement: DEBUG
+#    org.springframework: DEBUG

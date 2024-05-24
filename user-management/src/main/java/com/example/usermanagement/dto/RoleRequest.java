@@ -14,8 +14,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleRequest {
-    private String name;
-    private String description;
+    private Long id;
+    private String roleName;
+    private String roleDescription;
+    private Set<String> privilegeCode;
 
     public RoleRequest(RoleRequest roleRequest) {
     }
@@ -25,10 +27,10 @@ public class RoleRequest {
 //        return getPrivileges();
 //    }
 
-    public void setPrivileges(Set<Privilege> privileges) {
+   /* public void setPrivileges(Set<Privilege> privileges) {
     }
-
-    public PrivilegeRequest[] getPrivileges() {
+*/
+/*    public PrivilegeRequest[] getPrivileges() {
         return new PrivilegeRequest[0];
-    }
+    }*/
 }

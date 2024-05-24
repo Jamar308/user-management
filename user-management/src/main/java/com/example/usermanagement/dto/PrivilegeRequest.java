@@ -14,15 +14,15 @@ import java.util.Random;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrivilegeRequest {
-    private String name;
+    private String privilegeName;
     private String code;
-    private String description;
+    private String privilegeDescription;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
     public PrivilegeRequest(Privilege privilege) {
-        this.name = privilege.getName();
-        this.description = privilege.getDescription();
+        this.privilegeName = privilege.getPrivilegeName();
+        this.privilegeDescription = privilege.getPrivilegeDescription();
         this.createdDate = privilege.getCreatedDate();
         this.updatedDate = privilege.getUpdatedDate();
     }

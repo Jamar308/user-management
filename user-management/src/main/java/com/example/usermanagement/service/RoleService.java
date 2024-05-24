@@ -5,11 +5,14 @@ import com.example.usermanagement.dto.RoleRequest;
 import com.example.usermanagement.model.Privilege;
 import com.example.usermanagement.model.Role;
 import com.example.usermanagement.repositories.RoleRepository;
+import com.example.usermanagement.util.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,15 +28,15 @@ public class RoleService {
     // Simplified conversion methods
     private Role convertToEntity(RoleRequest roleRequest) {
         Role role = new Role();
-        role.setName(roleRequest.getName());
-        role.setDescription(roleRequest.getDescription());
+        role.setRoleName(roleRequest.getRoleName());
+        role.setRoleDescription(roleRequest.getRoleDescription());
         return role;
     }
 
     private RoleRequest convertToDto(Role role) {
         return RoleRequest.builder()
-                .name(role.getName())
-                .description(role.getDescription())
+                .roleName(role.getRoleName())
+                .roleDescription(role.getRoleDescription())
                 .build();
     }
 
@@ -43,23 +46,17 @@ public class RoleService {
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private List<PrivilegeRequest> convertToDtos(Set<Privilege> privileges) {
-        return privileges.stream()
-                .map(privilege -> new PrivilegeRequest(privilege))
-                .collect(Collectors.toList());
-    }
-
-    // Improved createRoleWithPrivileges method
     public RoleRequest createRoleWithPrivileges(RoleRequest roleRequest) {
         Role role = convertToEntity(roleRequest); // Convert RoleRequest to Role entity
         Set<Privilege> persistedPrivileges = new HashSet<>();
 
-        for (PrivilegeRequest privilegeRequest : roleRequest.getPrivileges()) {
-            Privilege persistedPrivilege = privilegeService.findByName(privilegeRequest.getCode());
-            if (persistedPrivilege == null) {
-                persistedPrivilege = privilegeService.createPrivilege(privilegeRequest); // Create new privilege if not found
+        for (String code : roleRequest.getPrivilegeCode()) {
+            Privilege persistedPrivilege = privilegeService.findByName(code);
+            if (persistedPrivilege != null) {
+                persistedPrivileges.add(persistedPrivilege);
+                // persistedPrivilege = privilegeService.createPrivilege(privilegeRequest); // Create new privilege if not found
             }
-            persistedPrivileges.add(persistedPrivilege);
+
         }
 
         role.setPrivileges(persistedPrivileges); // Associate privileges with the role
@@ -82,36 +79,49 @@ public class RoleService {
     }
 
     // Optimized updateRole method
-    public RoleRequest updateRole(Long id, RoleRequest roleDetails, Privilege PrivilegeRequest) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + id));
+    public ResponseEntity<RoleResponse> updateRole(RoleRequest roleRequest, String success) {
 
-        role.setName(roleDetails.getName());
-        role.setDescription(roleDetails.getDescription());
+        ResponseEntity<RoleResponse> response = new ResponseEntity<>(success, HttpStatus.OK);
 
-        // Clear existing privileges
-        role.setPrivileges(new HashSet<>());
+        Optional<Role> role = roleRepository.findById(roleRequest.getId());
+        try {
+            if (role.isPresent()){
+                Set<Privilege> persistedPrivileges = new HashSet<>();
 
-        // Process new privileges
-        for (PrivilegeRequest privilegeRequest : roleDetails.getPrivileges()) {
-            // Try to find an existing privilege by code
-            Privilege existingPrivilege = privilegeService.findByName(privilegeRequest.getCode());
-            if (existingPrivilege!= null) {
-                // Update the existing privilege
-                existingPrivilege.setName(privilegeRequest.getName());
-                existingPrivilege.setDescription(privilegeRequest.getDescription());
-                // Assuming you have a method to save the updated privilege
-                privilegeService.updatePrivilege(existingPrivilege);
-            } else {
-                // Create a new privilege if it doesn't exist
-                PrivilegeRequest newPrivilege = new PrivilegeRequest(PrivilegeRequest );
-                privilegeService.createPrivilege(newPrivilege);
+                for (String code : roleRequest.getPrivilegeCode()) {
+                    Privilege persistedPrivilege = privilegeService.findByName(code);
+                    if (persistedPrivilege != null) {
+                        persistedPrivileges.add(persistedPrivilege);
+                        // persistedPrivilege = privilegeService.createPrivilege(privilegeRequest); // Create new privilege if not found
+                    }
+
+                }
+               Role existingRole = role.get();
+               existingRole.setRoleDescription(roleRequest.getRoleDescription());
+               existingRole.setRoleName(roleRequest.getRoleName());
+               existingRole.setPrivileges(persistedPrivileges);
+               Role savedRole = roleRepository.save(existingRole);
+              RoleResponse entity = RoleResponse.builder()
+                               .roleName(savedRole.getRoleName())
+                                       .roleDescription(savedRole.getRoleDescription())
+                                               .id(savedRole.getRoleId())
+                                                       .privilegeCode(savedRole.getPrivileges())
+                                                               .build();
+               response.setMessage("Role updated successfully");
+               response.setStatusCode(HttpStatus.CREATED.value());
+               response.setEntity(entity);
+            }else {
+                response.setMessage("Role not Found");
+                response.setStatusCode(HttpStatus.NOT_FOUND.value());
             }
+
+
+        } catch (Exception e) {
+            response.setMessage("An error occurred while updating role");
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
-        // Save the updated role
-        Role savedRole = roleRepository.save(role);
-        return convertToDto(savedRole);
+        return response;
     }
 
     // Simplified deleteRole method
@@ -124,8 +134,8 @@ public class RoleService {
                 .orElseThrow(() -> new IllegalArgumentException("Role not found with id: " + id));
 
         // Step 2: Update the role's details
-        role.setName(roleDetails.getName());
-        role.setDescription(roleDetails.getDescription());
+        role.setRoleName(roleDetails.getRoleName());
+        role.setRoleDescription(roleDetails.getRoleDescription());
 
         // Step 4: Save the updated role
         Role savedRole = roleRepository.save(role);
